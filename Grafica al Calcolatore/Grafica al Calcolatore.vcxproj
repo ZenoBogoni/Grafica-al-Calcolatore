@@ -75,8 +75,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\dev\OpenGL\Grafica al calcolatore\Dependencies\Include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\dev\OpenGL\Grafica al calcolatore\Dependencies\Libs;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\Zeno\source\repos\ZenoBogoni\Grafica-al-Calcolatore\Dependencies\Include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Zeno\source\repos\ZenoBogoni\Grafica-al-Calcolatore\Dependencies\Libs;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

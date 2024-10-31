@@ -37,9 +37,9 @@ int main()
 
 	// triangle
 	float vertices[] = { 
-		-0.5f,-0.5f, 0.0f,
-		 0.5f,-0.5f, 0.0f,
-		 0.0f, 0.5f, 0.0f
+		-0.5f,-0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
+		 0.5f,-0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
+		 0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f
 	};
 
 	unsigned int VAO; // Vertex Array Object
@@ -54,9 +54,12 @@ int main()
 	// vertex shader
 	const char* vertexShaderSource = "#version 330 core\n"
 		"layout (location = 0) in vec3 aPos;\n"
+		"layout (location = 12)"
+		"out vec4 vertexColor;\n"
 		"void main()\n"
 		"{\n"
 		" gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+		" vertexColor = vec4(0.5, 0.0, 0.0, 1.0);\n"
 		"}\0";
 
 	unsigned int vertexShader;
@@ -73,10 +76,11 @@ int main()
 
 	// fragment shader
 	const char* fragmentShaderSource = "#version 330 core\n"
+		"in vec4 vertexColor;\n"
 		"out vec4 FragColor;\n"
 		"void main()\n"
 		"{\n"
-		" FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+		" FragColor = vertexColor;\n"
 		"}\0";
 	unsigned int fragmentShader;
 	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
@@ -107,14 +111,17 @@ int main()
 	glDeleteShader(fragmentShader);
 
 	// stride: number of bytes between each vertex
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0); // starting, vec* size, type provided, normalized, stride size, pointer inside stride  
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0); // starting, vec* size, type provided, normalized, stride size, pointer inside stride  
 	glEnableVertexAttribArray(0);
+
+	float red;
+	
 
 	while (!glfwWindowShouldClose(window))
 	{
 		processInput(window);
-
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		red = sin(glfwGetTime() + 1) / 2;
+		glClearColor(red, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		// Draw the triangle
