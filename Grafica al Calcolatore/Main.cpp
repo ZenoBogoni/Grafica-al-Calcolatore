@@ -54,12 +54,12 @@ int main()
 	// vertex shader
 	const char* vertexShaderSource = "#version 330 core\n"
 		"layout (location = 0) in vec3 aPos;\n"
-		"layout (location = 12)"
+		"layout (location = 1) in vec3 aColor;\n"
 		"out vec4 vertexColor;\n"
 		"void main()\n"
 		"{\n"
 		" gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-		" vertexColor = vec4(0.5, 0.0, 0.0, 1.0);\n"
+		" vertexColor = vec4(aColor, 1.0);\n"
 		"}\0";
 
 	unsigned int vertexShader;
@@ -112,16 +112,21 @@ int main()
 
 	// stride: number of bytes between each vertex
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0); // starting, vec* size, type provided, normalized, stride size, pointer inside stride  
-	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(0); // attribute index
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
 
-	float red;
+	float redValue, greenValue, blueValue;
 	
 
 	while (!glfwWindowShouldClose(window))
 	{
 		processInput(window);
-		red = sin(glfwGetTime() + 1) / 2;
-		glClearColor(red, 0.3f, 0.3f, 1.0f);
+		double time = glfwGetTime();
+		redValue = (sin(time) + 1) / 2;
+		greenValue = (cos(time + (2 / 3) * 3.14) + 1) / 2;
+		blueValue = (sin(time + (4 / 3) * 3.14) + 1) / 2;
+		glClearColor(redValue, greenValue, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		// Draw the triangle
