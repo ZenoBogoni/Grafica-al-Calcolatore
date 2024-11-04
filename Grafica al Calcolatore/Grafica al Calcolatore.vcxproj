@@ -21,6 +21,14 @@
   <ItemGroup>
     <ClCompile Include="glad.c" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Shader.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Shader.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="firstTriangle.fs" />
+    <None Include="firstTriangle.vs" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
@@ -75,8 +83,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\dev\OpenGL\Grafica al calcolatore\Dependencies\Include;C:\Users\Zeno\source\repos\ZenoBogoni\Grafica-al-Calcolatore\Dependencies\Include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\dev\OpenGL\Grafica al calcolatore\Dependencies\Libs;C:\Users\Zeno\source\repos\ZenoBogoni\Grafica-al-Calcolatore\Dependencies\Libs;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\dev\OpenGL\Grafica al calcolatore\Dependencies\Include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\dev\OpenGL\Grafica al calcolatore\Dependencies\Libs;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>C:\dev\OpenGL\Grafica al calcolatore\Dependencies\Include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\dev\OpenGL\Grafica al calcolatore\Dependencies\Libs;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -116,7 +128,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -133,6 +145,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

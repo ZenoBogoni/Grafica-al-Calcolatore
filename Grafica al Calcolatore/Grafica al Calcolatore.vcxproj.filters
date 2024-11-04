@@ -13,6 +13,15 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="File di risorse\shader">
+      <UniqueIdentifier>{830f19c4-a163-4672-b1e6-34b25eb193df}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File di risorse\shader\vertex">
+      <UniqueIdentifier>{9c8ee443-8700-4be0-a24e-b76057d17659}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File di risorse\shader\fragment">
+      <UniqueIdentifier>{0a99064e-a9a2-4daf-950b-94563cf9351e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -21,5 +30,21 @@
     <ClCompile Include="glad.c">
       <Filter>File di origine</Filter>
     </ClCompile>
+    <ClCompile Include="Shader.cpp">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Shader.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="firstTriangle.vs">
+      <Filter>File di risorse\shader\vertex</Filter>
+    </None>
+    <None Include="firstTriangle.fs">
+      <Filter>File di risorse\shader\fragment</Filter>
+    </None>
   </ItemGroup>
 </Project>
