@@ -27,8 +27,7 @@
     <ClInclude Include="Shader.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="firstTriangle.fs" />
-    <None Include="firstTriangle.vs" />
+    <None Include="res\shaders\triangle.shader" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

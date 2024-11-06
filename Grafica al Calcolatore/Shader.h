@@ -5,7 +5,7 @@
 #include <GLFW/glfw3.h>
 
 #include <string>
-#include<iostream>
+#include <iostream>
 #include <sstream>
 #include <fstream>
 
@@ -14,7 +14,7 @@ class Shader
 public: 
 	unsigned int ID;
 
-	Shader(const char* vertexPath, const char* fragmentPath);
+	Shader(const std::string& filePath);
 	
 	void use();
 	void setBool(const std::string &name, bool value) const;

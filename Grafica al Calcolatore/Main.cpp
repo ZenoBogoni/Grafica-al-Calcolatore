@@ -38,7 +38,7 @@ int main()
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
 	// Shaders
-	Shader triangleShader = Shader("./firstTriangle.vs", "firstTriangle.fs");
+	Shader triangleShader = Shader("res/shaders/triangle.shader");
 
 	// triangle
 	float vertices[] = { 
@@ -72,7 +72,7 @@ int main()
 		redValue = (sin(time) + 1) / 2;
 		greenValue = (cos(time + (2 / 3) * 3.14) + 1) / 2;
 		blueValue = (sin(time + (4 / 3) * 3.14) + 1) / 2;
-		glClearColor(redValue, greenValue, 0.3f, 1.0f);
+		glClearColor(redValue, greenValue, blueValue, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		// Draw the triangle

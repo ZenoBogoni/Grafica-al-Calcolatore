@@ -1,49 +1,50 @@
 #include "Shader.h"
 #include <glad/glad.h>
 
+struct ShaderSource {
+	std::string vertexSource;
+	std::string fragmentSource;
+};
 
+Shader::Shader(const std::string& filePath) {
 
-Shader::Shader(const char* vertexPath, const char* fragmentPath) {
+	enum ShaderType
+	{
+		NONE = -1, VERTEX = 0, FRAGMENT = 1
+	};
 
 	// Get shaders source code
+	int type = ShaderType::NONE;
+	std::ifstream stream(filePath);
+	std::string line;
+	std::stringstream ss[2];
 
-	std::string vertexCode;
-	std::string fragmentCode;
-	std::ifstream vShaderFile;
-	std::ifstream fShaderFile;
-
-	vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-	fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-
-	try {
-		vShaderFile.open(vertexPath);
-		fShaderFile.open(fragmentPath);
-		std::stringstream vShaderStream, fShaderStream;
-		vShaderStream << vShaderFile.rdbuf();
-		fShaderStream << fShaderFile.rdbuf();
-
-		vShaderFile.close();
-		fShaderFile.close();
-
-		vertexCode = vShaderStream.str();
-		fragmentCode = fShaderStream.str();
-	}
-	catch (std::ifstream::failure e) {
-		std::cout << "ERROR::SHADER::FILE_NOT_SUCCESSFULLT_READ" << std::endl;
+	while (getline(stream, line)) {
+		if (line.find("#shader") != std::string::npos) {
+			if (line.find("vertex") != std::string::npos)
+				type = ShaderType::VERTEX;
+			if (line.find("fragment") != std::string::npos)
+				type = ShaderType::FRAGMENT;
+		}
+		else {
+			ss[(int)type] << line << '\n';
+		}
 	}
 
-	const char* vShaderCode = vertexCode.c_str();
-	const char* fShaderCode = fragmentCode.c_str();
+	ShaderSource src = { ss[ShaderType::VERTEX].str(), ss[ShaderType::FRAGMENT].str()};
 
 	// Shader compilation
 
 	unsigned int vertex, fragment;
+	const char* vertexSource = src.vertexSource.c_str();
+	const char* fragmentSource = src.fragmentSource.c_str();
 	int success;
 	char infoLog[512];
 
 	vertex = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertex, 1, &vShaderCode, NULL);
+	glShaderSource(vertex, 1, &vertexSource, NULL);
 	glCompileShader(vertex);
+	glValidateProgram(vertex);
 
 	glGetShaderiv(vertex, GL_COMPILE_STATUS, &success);
 	if (!success) {
@@ -52,7 +53,7 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath) {
 	}
 
 	fragment = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragment, 1, &fShaderCode, NULL);
+	glShaderSource(fragment, 1, &fragmentSource, NULL);
 	glCompileShader(fragment);
 
 	glGetShaderiv(fragment, GL_COMPILE_STATUS, &success);
