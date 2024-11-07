@@ -92,3 +92,7 @@ void Shader::setInt(const std::string& name, int value) const {
 void Shader::setFloat(const std::string& name, float value) const {
 	glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
 }
+
+void Shader::set4Float(const std::string& name, float first, float second, float third, float fourth) const {
+	glUniform4f(glGetUniformLocation(ID, name.c_str()), first, second, third, fourth);
+}

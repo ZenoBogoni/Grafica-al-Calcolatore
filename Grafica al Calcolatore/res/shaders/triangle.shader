@@ -15,9 +15,10 @@ void main()
 #version 330 core
 
 in vec4 vertexColor;
+uniform vec4 myColor;
 out vec4 FragColor;
 
 void main()
 {
-	FragColor = vertexColor;
+	FragColor = myColor;
 }
