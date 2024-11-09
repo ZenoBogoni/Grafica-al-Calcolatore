@@ -3,15 +3,18 @@
 #include <iostream>
 
 #include "Shader.h"
+#include "Renderer.h"
+#include "VertexBuffer.h"
+#include "IndexBuffer.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 
+int height = 600;
+int width = 600;
+
 int main()
 {
-	unsigned int height = 600;
-	unsigned int width = 600;
-
 	int success;
 	char infoLog[512];
 
@@ -19,7 +22,6 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	//glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
 	GLFWwindow* window = glfwCreateWindow(width, height, "LearnOpenGL", NULL, NULL);
 	if (window == NULL)
@@ -36,7 +38,7 @@ int main()
 		return -1;
 	}
 
-	glViewport(0, 0, width, height);
+	GLCall(glViewport(0, 0, width, height));
 
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
@@ -57,35 +59,30 @@ int main()
 	};
 
 	unsigned int VAO; // Vertex Array Object
-	glGenVertexArrays(1, &VAO); // glGenVertexArrays(how many, &VAO)
-	glBindVertexArray(VAO); // bind Vertex Array Object
+	GLCall(glGenVertexArrays(1, &VAO)); // glGenVertexArrays(how many, &VAO)
+	GLCall(glBindVertexArray(VAO)); // bind Vertex Array Object
 
-	unsigned int VBO; // create buffer pointer
-	glGenBuffers(1, &VBO); // create buffer
-	glBindBuffer(GL_ARRAY_BUFFER, VBO); // tell opengl that's our generic array buffer
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); // tell how big is the buffer, and how it should be used
-	
+	VertexBuffer vbo(vertices, sizeof(vertices));
+	IndexBuffer ebo(indices, sizeof(indices) / sizeof(unsigned int));
 
-	unsigned int EBO;
-	glGenBuffers(1, &EBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-	
+	// Texture
+	unsigned int texture;
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
 
 	// stride: number of bytes between each vertex
 	// location 0 position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0); // starting, vec* size, type provided, normalized, stride size, pointer inside stride  
-	glEnableVertexAttribArray(0); // attribute index
+	GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0)); // starting, vec* size, type provided, normalized, stride size, pointer inside stride  
+	GLCall(glEnableVertexAttribArray(0)); // attribute index
 	// location 1 color attribute
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
+	GLCall(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float))));
+	GLCall(glEnableVertexAttribArray(1));
 
 	float redValue, greenValue, blueValue;
-	double xDegrees = 120.0;
+	float xDegrees = 120;
 
 	// converting degrees to radians
 	float radians = xDegrees * 3.14159 / 180;
-
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -94,15 +91,17 @@ int main()
 		redValue = sin(time) < 0 ? 0 : sin(time);
 		greenValue = sin(time + radians) < 0 ? 0 : sin(time + radians);
 		blueValue = sin(time + 2 * radians) < 0 ? 0 : sin(time + 2 * radians);
-		glClearColor(0.2f, 0.2f, 0.23f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+		GLCall(glClearColor(0.2f, 0.2f, 0.23f, 1.0f));
+		GLCall(glClear(GL_COLOR_BUFFER_BIT));
 
 		// Draw the triangle
 		triangleShader.use();
 		triangleShader.set4Float("myColor", redValue, greenValue, blueValue, 1.0f);
-		glBindVertexArray(VAO);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		GLCall(glBindVertexArray(VAO));
+		ebo.Bind();
+		GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0));
+		
+
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -119,8 +118,11 @@ void processInput(GLFWwindow* window)
 }
 
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+void framebuffer_size_callback(GLFWwindow* window, int newWidth, int newHeight)
 {
-	glViewport(0, 0, width, height);
+	glViewport(0, 0, newWidth, newHeight);
+	width = newWidth;
+	height = newHeight;
+	/*std::cout << "resolution: " << width << "x" << height << std::endl;*/
 }
 
