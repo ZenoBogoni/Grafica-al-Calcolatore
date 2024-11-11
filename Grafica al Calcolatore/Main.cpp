@@ -6,6 +6,7 @@
 #include "Renderer.h"
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
+#include "Texture.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
@@ -47,10 +48,10 @@ int main()
 
 	// triangle
 	float vertices[] = {
-		-0.5f,-0.5f, 0.0f, 1.0f, 0.0f, 0.0f, // bottom left
-		 0.5f,-0.5f, 0.0f, 0.0f, 1.0f, 0.0f, // bottom right
-		 0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f, // top right
-		-0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f	 // top left
+		-0.5f,-0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, // bottom left
+		 0.5f,-0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,// bottom right
+		 0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,// top right
+		-0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f	 // top left
 	};
 
 	unsigned int indices[] = {
@@ -64,19 +65,19 @@ int main()
 
 	VertexBuffer vbo(vertices, sizeof(vertices));
 	IndexBuffer ebo(indices, sizeof(indices) / sizeof(unsigned int));
+	Texture tex("assets/textures/minecraft_grass.jpg");
 
-	// Texture
-	unsigned int texture;
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
 
 	// stride: number of bytes between each vertex
 	// location 0 position attribute
-	GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0)); // starting, vec* size, type provided, normalized, stride size, pointer inside stride  
+	GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0)); // starting, vec* size, type provided, normalized, stride size, pointer inside stride  
 	GLCall(glEnableVertexAttribArray(0)); // attribute index
 	// location 1 color attribute
-	GLCall(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float))));
+	GLCall(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float))));
 	GLCall(glEnableVertexAttribArray(1));
+	
+	GLCall(glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float))));
+	GLCall(glEnableVertexAttribArray(2));
 
 	float redValue, greenValue, blueValue;
 	float xDegrees = 120;
@@ -97,6 +98,8 @@ int main()
 		// Draw the triangle
 		triangleShader.use();
 		triangleShader.set4Float("myColor", redValue, greenValue, blueValue, 1.0f);
+		triangleShader.setInt("ourTexture", 0);
+		tex.Bind();
 		GLCall(glBindVertexArray(VAO));
 		ebo.Bind();
 		GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0));
