@@ -12,20 +12,22 @@
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 
-
-
 class Shader
 {
-public: 
+private: 
 	unsigned int m_RendererID;
-
+	std::string m_FilePath;
+public: 
 	Shader(const std::string& filePath);
-	
-	void use();
-	void setBool(const std::string &name, bool value) const;
-	void setInt(const std::string &name, int value) const;
-	void setFloat(const std::string &name, float value) const;
-	void set4Float(const std::string& name, float first, float second, float third, float fourth) const;
+	~Shader();
+
+	void Bind() const;
+	void setUniform1b(const std::string &name, bool value) const;
+	void setUniform1i(const std::string &name, int value) const;
+	void setUniform1f(const std::string &name, float value) const;
+	void setUniform4f(const std::string& name, float first, float second, float third, float fourth) const;
+
+	inline std::string getFilePath() const { return m_FilePath; }
 };
 #endif
 

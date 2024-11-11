@@ -7,6 +7,7 @@
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 #include "Texture.h"
+#include "VertexArray.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
@@ -59,31 +60,18 @@ int main()
 		0, 2, 3
 	};
 
-	unsigned int VAO; // Vertex Array Object
-	GLCall(glGenVertexArrays(1, &VAO)); // glGenVertexArrays(how many, &VAO)
-	GLCall(glBindVertexArray(VAO)); // bind Vertex Array Object
-
+	VertexArray vao;
 	VertexBuffer vbo(vertices, sizeof(vertices));
 	IndexBuffer ebo(indices, sizeof(indices) / sizeof(unsigned int));
-	Texture tex("assets/textures/minecraft_grass.jpg");
+	Texture tex("assets/textures/shrek_smith.jpg", GL_RGB);
 
-
-	// stride: number of bytes between each vertex
-	// location 0 position attribute
-	GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0)); // starting, vec* size, type provided, normalized, stride size, pointer inside stride  
-	GLCall(glEnableVertexAttribArray(0)); // attribute index
-	// location 1 color attribute
-	GLCall(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float))));
-	GLCall(glEnableVertexAttribArray(1));
-	
-	GLCall(glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float))));
-	GLCall(glEnableVertexAttribArray(2));
+	vao.AddAttibute(0, 3, GL_FALSE, 8, 0);  
+	vao.AddAttibute(1, 3, GL_FALSE, 8, 3);  
+	vao.AddAttibute(2, 3, GL_FALSE, 8, 6);  
 
 	float redValue, greenValue, blueValue;
-	float xDegrees = 120;
-
-	// converting degrees to radians
-	float radians = xDegrees * 3.14159 / 180;
+	float degrees = 120;
+	float radians = degrees * 3.14159 / 180;
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -96,14 +84,14 @@ int main()
 		GLCall(glClear(GL_COLOR_BUFFER_BIT));
 
 		// Draw the triangle
-		triangleShader.use();
-		triangleShader.set4Float("myColor", redValue, greenValue, blueValue, 1.0f);
-		triangleShader.setInt("ourTexture", 0);
+		triangleShader.Bind();
+		triangleShader.setUniform4f("myColor", redValue, greenValue, blueValue, 1.0f);
+		triangleShader.setUniform1i("ourTexture", 0);
 		tex.Bind();
-		GLCall(glBindVertexArray(VAO));
+		vao.Bind();
 		ebo.Bind();
 		GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0));
-		
+
 
 
 		glfwSwapBuffers(window);

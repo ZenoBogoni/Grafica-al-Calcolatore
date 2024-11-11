@@ -4,7 +4,7 @@
 #include <glad/glad.h>
 
 
-Texture::Texture(const std::string& path)
+Texture::Texture(const std::string& path, unsigned int type)
 	:ID(0), m_FilePath(path), m_Width(0), m_Height(0),m_BPP(0)
 {
 	GLCall(glGenTextures(1, &ID));
@@ -13,7 +13,7 @@ Texture::Texture(const std::string& path)
 	stbi_set_flip_vertically_on_load(true);
 	m_LocalBuffer = stbi_load(m_FilePath.c_str(), &m_Width, &m_Height, &m_BPP, 0);
 	if (m_LocalBuffer) {
-		GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_Width, m_Height, 0, GL_RGB, GL_UNSIGNED_BYTE, m_LocalBuffer));
+		GLCall(glTexImage2D(GL_TEXTURE_2D, 0, type, m_Width, m_Height, 0, type, GL_UNSIGNED_BYTE, m_LocalBuffer));
 		GLCall(glGenerateMipmap(GL_TEXTURE_2D));
 	}
 	else {

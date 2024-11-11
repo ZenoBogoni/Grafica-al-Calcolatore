@@ -6,7 +6,9 @@ struct ShaderSource {
 	std::string fragmentSource;
 };
 
-Shader::Shader(const std::string& filePath) {
+Shader::Shader(const std::string& filePath) 
+: m_FilePath(filePath)
+{
 
 	enum ShaderType
 	{
@@ -77,22 +79,26 @@ Shader::Shader(const std::string& filePath) {
 	glDeleteShader(fragment);
 }
 
-void Shader::use() {
+Shader::~Shader()
+{
+}
+
+void Shader::Bind() const {
 	glUseProgram(m_RendererID);
 }
 
-void Shader::setBool(const std::string& name, bool value) const {
+void Shader::setUniform1b(const std::string& name, bool value) const {
 	glUniform1i(glGetUniformLocation(m_RendererID, name.c_str()), (int)value);
 }
 
-void Shader::setInt(const std::string& name, int value) const {
+void Shader::setUniform1i(const std::string& name, int value) const {
 	glUniform1i(glGetUniformLocation(m_RendererID, name.c_str()), value);
 }
 
-void Shader::setFloat(const std::string& name, float value) const {
+void Shader::setUniform1f(const std::string& name, float value) const {
 	glUniform1f(glGetUniformLocation(m_RendererID, name.c_str()), value);
 }
 
-void Shader::set4Float(const std::string& name, float first, float second, float third, float fourth) const {
-	glUniform4f(glGetUniformLocation(m_RendererID, name.c_str()), first, second, third, fourth);
+void Shader::setUniform4f(const std::string& name, float v0, float v1, float v2, float v3) const {
+	glUniform4f(glGetUniformLocation(m_RendererID, name.c_str()), v0, v1, v2, v3);
 }
