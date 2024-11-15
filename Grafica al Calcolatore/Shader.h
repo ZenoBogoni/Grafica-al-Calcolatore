@@ -3,6 +3,7 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
 
 #include <string>
 #include <iostream>
@@ -25,7 +26,9 @@ public:
 	void setUniform1b(const std::string &name, bool value) const;
 	void setUniform1i(const std::string &name, int value) const;
 	void setUniform1f(const std::string &name, float value) const;
-	void setUniform4f(const std::string& name, float first, float second, float third, float fourth) const;
+	void setUniform3f(const std::string& name, float v0, float v1, float v2) const;
+	void setUniform4f(const std::string& name, float v0, float v1, float v2, float v3) const;
+	void setUniformMat4f(const std::string& name, const glm::mat4& matrix) const;
 
 	inline std::string getFilePath() const { return m_FilePath; }
 };

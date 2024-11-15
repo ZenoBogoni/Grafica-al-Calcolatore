@@ -39,7 +39,6 @@
     <ClInclude Include="VertexBuffer.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\..\..\Users\Zeno\Downloads\Grass_Block.webp" />
     <None Include="res\shaders\triangle.shader" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

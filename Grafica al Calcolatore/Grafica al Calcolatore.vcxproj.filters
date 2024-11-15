@@ -39,6 +39,9 @@
     <ClCompile Include="IndexBuffer.cpp">
       <Filter>File di origine</Filter>
     </ClCompile>
+    <ClCompile Include="VertexArray.cpp">
+      <Filter>File di origine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h">
@@ -57,6 +60,9 @@
       <Filter>File di intestazione</Filter>
     </ClInclude>
     <ClInclude Include="IndexBuffer.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexArray.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,5 +1,8 @@
 #include "Shader.h"
+#include "Renderer.h"
 #include <glad/glad.h>
+#include <glm/glm.hpp>
+
 
 struct ShaderSource {
 	std::string vertexSource;
@@ -99,6 +102,17 @@ void Shader::setUniform1f(const std::string& name, float value) const {
 	glUniform1f(glGetUniformLocation(m_RendererID, name.c_str()), value);
 }
 
+void Shader::setUniform3f(const std::string& name, float v0, float v1, float v2) const
+{
+	glUniform3f(glGetUniformLocation(m_RendererID, name.c_str()), v0, v1, v2);
+}
+
 void Shader::setUniform4f(const std::string& name, float v0, float v1, float v2, float v3) const {
 	glUniform4f(glGetUniformLocation(m_RendererID, name.c_str()), v0, v1, v2, v3);
+}
+
+void Shader::setUniformMat4f(const std::string& name, const glm::mat4& matrix) const
+{
+	GLCall(Shader::Bind());
+	GLCall(glUniformMatrix4fv(glGetUniformLocation(m_RendererID, name.c_str()), 1, GL_FALSE, &matrix[0][0]));
 }

@@ -6,24 +6,29 @@ layout (location = 1) in vec3 aColor;
 layout (location = 2) in vec2 aTexCoord;
 
 out vec2 TexCoord;
+out vec3 vertexColor;
+
+uniform mat4 projection;
+uniform mat4 view;
+uniform mat4 model;
 
 void main()
 {
-	gl_Position = vec4(aPos, 1.0);
+	gl_Position = projection * view * model * vec4(aPos, 1.0);
 	TexCoord = aTexCoord;
+	vertexColor = aColor;
 }
 
 #shader fragment
 #version 330 core
 
 in vec2 TexCoord;
+in vec3 vertexColor;
 
-uniform sampler2D ourTexture;
-uniform vec4 myColor;
 
 out vec4 FragColor;
 
 void main()
 {
-	FragColor = texture(ourTexture, TexCoord);
+	FragColor = vec4(vertexColor, 1.0);
 }
