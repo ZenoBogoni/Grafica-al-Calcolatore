@@ -15,6 +15,8 @@
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+
 
 void processInput(GLFWwindow* window);
 
@@ -23,13 +25,25 @@ void updateView();
 
 int SRC_HEIGHT = 600;
 int SRC_WIDTH = 1280;
+float deltaTime = 0.0f; // Time between current frame and last frame
+float lastFrame = 0.0f; // Time of last frame
+float lastX = SRC_WIDTH / 2, lastY = SRC_HEIGHT / 2;
+bool firstMouse = true;
+
 glm::mat4 model;
 float xAngle = 0.0f;
 float yAngle = 0.0f;
 float scaleFactor = 1.0f;
 
 glm::mat4 view;
-glm::vec3 viewPostion(0.0f, 0.0, 0.0f);
+glm::vec3 cameraPosition(0.0f, 0.0, 0.0f);
+glm::vec3 cameraTarget(0.0f, 0.0f, 0.0f);
+glm::vec3 cameraDirection;
+glm::vec3 cameraFront(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraUp(0.0f, 1.0f, 0.0f);
+
+float yaw = -90.0f;
+float pitch = 0.0f;
 
 unsigned int nCubes = 1;
 
@@ -64,16 +78,18 @@ int main()
 	GLCall(glEnable(GL_DEPTH_TEST));
 	GLCall(glEnable(GL_BLEND));
 	GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+	GLCall(glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED));
 
-	glfwSwapInterval(1); // vsync?
+	//glfwSwapInterval(1); // vsync?
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	glfwSetScrollCallback(window, scroll_callback);
 	glfwSetKeyCallback(window, key_callback);
+	glfwSetCursorPosCallback(window, mouse_callback);
 
 	// MVP
 	model = glm::rotate(glm::mat4(1.0f), glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-	view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f));
-	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)SRC_WIDTH / (float)SRC_HEIGHT, 0.1f, 100.0f);
+	view = glm::lookAt( cameraPosition, cameraPosition + cameraFront, cameraUp);
+	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)SRC_WIDTH / (float)SRC_HEIGHT, 0.1f, 10000.0f);
 	updateModel();
 
 
@@ -168,11 +184,16 @@ int main()
 	while (!glfwWindowShouldClose(window))
 	{
 		processInput(window);
+		float currentFrame = glfwGetTime();
+		deltaTime = currentFrame - lastFrame;
+		lastFrame = currentFrame;
+
 		GLCall(glClearColor(0.2f, 0.2f, 0.23f, 1.0f));
 		GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
-		projection = glm::perspective(glm::radians(45.0f), (float)SRC_WIDTH / (float)SRC_HEIGHT, 0.1f, 100.0f);
-
+		projection = glm::perspective(glm::radians(45.0f), (float)SRC_WIDTH / (float)SRC_HEIGHT, 0.1f, 100.0f);;
+		view = glm::lookAt(cameraPosition, cameraPosition + cameraFront, cameraUp);
+		
 		// Draw the triangle
 		shader.Bind();
 		shader.setUniformMat4f("projection", projection);
@@ -182,6 +203,7 @@ int main()
 		vao.Bind();
 		ebo.Bind();
 		for (unsigned int i = 0; i < nCubes; i++) {
+
 			updateModel(glm::translate(glm::mat4(1.0f), cubePositions[i]));
 			shader.setUniformMat4f("model", model);
 			GLCall(glDrawElements(GL_TRIANGLES, ebo.getCount(), GL_UNSIGNED_INT, 0));
@@ -199,42 +221,55 @@ void processInput(GLFWwindow* window)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-		xAngle = xAngle == 360.0f ? xAngle = 1.0f : xAngle += 1.0f;
-		updateModel();
-	}
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-		xAngle = xAngle == 0.0f ? xAngle = 359.0f : xAngle -= 1.0f;
-		updateModel();
-	}
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-		yAngle = yAngle == 360.0f ? yAngle = 1.0f : yAngle += 1.0f;
-		updateModel();
-	}
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-		yAngle = yAngle == 0.0f ? yAngle = 359.0f : yAngle -= 1.0f;
-		updateModel();
-	}
-	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
-		scaleFactor = scaleFactor <= 0.0f ? scaleFactor = 0.0f : scaleFactor -= 0.005f;
-		updateModel();
-	}
-	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-		scaleFactor = scaleFactor >= 2.0f ? scaleFactor = 2.0f : scaleFactor += 0.005f;
+	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+		xAngle = xAngle == 360.0f ? xAngle = 0.0f * deltaTime : xAngle += 120.0f * deltaTime;
 		updateModel();
 	}
 	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-		viewPostion[2] = -0.03f;
+		xAngle = xAngle == 0.0f ? xAngle = 360.0f * deltaTime : xAngle -= 120.0f * deltaTime;
+		updateModel();
+	}
+	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+		yAngle = yAngle == 360.0f ? yAngle = 0.0f * deltaTime : yAngle += 120.0f * deltaTime;
+		updateModel();
+	}
+	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+		yAngle = yAngle == 0.0f ? yAngle = 360.0f * deltaTime : yAngle -= 120.0f * deltaTime;
+		updateModel();
+	}
+	
+	/*if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+		cameraPosition.z = -0.03f;
 		updateView();
 	}
 	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-		viewPostion[2] = 0.03f;
+		cameraPosition.z = 0.03f;
 		updateView();
 	}
+	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+		cameraPosition.x = -0.03f;
+		updateView();
+	}
+	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+		cameraPosition.x = 0.03f;
+		updateView();
+	}*/
+	const float cameraSpeed = 2.5f * deltaTime; // adjust accordingly
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		cameraPosition += cameraSpeed * cameraFront;
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		cameraPosition -= cameraSpeed * cameraFront;
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		cameraPosition -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		cameraPosition += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+
+
 }
 
 void updateView() {
-	view = glm::translate(view, viewPostion);
+	view = glm::translate(view, cameraPosition);
+	cameraDirection = glm::normalize(cameraPosition - cameraTarget);
 }
 
 void updateModel(glm::mat4 traslation) {
@@ -260,6 +295,7 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
 	updateModel();
 	std::cout << "scale Factor: " << scaleFactor << ", new scale: " << newScale << std::endl;
 }
+
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 	if (key == GLFW_KEY_EQUAL && action == GLFW_PRESS) {
 		if (nCubes < 10) {
@@ -272,5 +308,35 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 		}
 	}
 }
+
+void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
+	if (firstMouse)
+	{
+		lastX = xpos;
+		lastY = ypos;
+		firstMouse = false;
+	}
+	float xoffset = xpos - lastX;
+	float yoffset = lastY - ypos;
+	lastX = xpos;
+	lastY = ypos;
+	float sensitivity = 0.1f;
+	xoffset *= sensitivity;
+	yoffset *= sensitivity;
+	yaw += xoffset;
+	pitch += yoffset;
+	if (pitch > 89.0f)
+		pitch = 89.0f;
+	if (pitch < -89.0f)
+		pitch = -89.0f;
+	glm::vec3 direction;
+	direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+	direction.y = sin(glm::radians(pitch));
+	direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+	cameraFront = glm::normalize(direction);
+
+
+}
+
 
 
