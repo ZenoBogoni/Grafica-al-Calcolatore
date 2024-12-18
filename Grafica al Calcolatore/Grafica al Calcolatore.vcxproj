@@ -39,6 +39,7 @@
     <ClInclude Include="VertexBuffer.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="res\shaders\light.shader" />
     <None Include="res\shaders\triangle.shader" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

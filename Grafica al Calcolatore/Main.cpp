@@ -36,7 +36,7 @@ float yAngle = 0.0f;
 float scaleFactor = 1.0f;
 
 glm::mat4 view;
-glm::vec3 cameraPosition(0.0f, 0.0, 0.0f);
+glm::vec3 cameraPosition(0.0f, 0.0, 3.0f);
 glm::vec3 cameraTarget(0.0f, 0.0f, 0.0f);
 glm::vec3 cameraDirection;
 glm::vec3 cameraFront(0.0f, 0.0f, -1.0f);
@@ -46,6 +46,8 @@ float yaw = -90.0f;
 float pitch = 0.0f;
 
 unsigned int nCubes = 1;
+
+glm::vec3 lightPosition(2.0f, 2.0f, 1.0f);
 
 int main()
 {
@@ -95,40 +97,41 @@ int main()
 
 	// Shaders
 	Shader shader = Shader("res/shaders/triangle.shader");
+	Shader lightShader = Shader("res/shaders/light.shader");
 
 
 	// triangle
 	float vertices[] = {
 		// front
-		-0.5f, -0.5f,  0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, // front bottom left 
-		 0.5f, -0.5f,  0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, // front bottom right 
-		 0.5f,  0.5f,  0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, // front top right 
-		-0.5f,  0.5f,  0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, // front top left 
+		-0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // front bottom left 
+		 0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, // front bottom right 
+		 0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, // front top right 
+		-0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, // front top left 
 		// back
-		 0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, // back bottom right 
-		-0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, // back bottom left 
-		-0.5f,  0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, // back top left 
-		 0.5f,  0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, // back top right 
+		 0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, // back bottom right 
+		-0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, // back bottom left 
+		-0.5f,  0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f, // back top left 
+		 0.5f,  0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f, // back top right 
 		 // left
-		 -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, // left bottom left
-		 -0.5f, -0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, // left bottom right 
-		 -0.5f,  0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, // left top right
-		 -0.5f,  0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // left top left 
+		 -0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, // left bottom left
+		 -0.5f, -0.5f,  0.5f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f, // left bottom right 
+		 -0.5f,  0.5f,  0.5f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f, // left top right
+		 -0.5f,  0.5f, -0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f, // left top left 
 		 // right
-		  0.5f, -0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, // right bottom left 
-		  0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, // right bottom right
-		  0.5f,  0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, // right top right
-		  0.5f,  0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // right top left 
+		  0.5f, -0.5f,  0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, // right bottom left 
+		  0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, // right bottom right
+		  0.5f,  0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, // right top right
+		  0.5f,  0.5f,  0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, // right top left 
 		  // top 
-		 -0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // top bottom left
-		  0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, // top bottom right
-		  0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, // top top right
-		 -0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, // top top left
+		 -0.5f,  0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, // top bottom left
+		  0.5f,  0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, // top bottom right
+		  0.5f,  0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, // top top right
+		 -0.5f,  0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // top top left
 		 // bottom 
-		 -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // top bottom left
-		  0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, // top bottom right
-		  0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, // top top right
-		 -0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, // top top left
+		 -0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, // top bottom left
+		  0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f, // top bottom right
+		  0.5f, -0.5f,  0.5f, 0.0f, -1.0f, 0.0f, 1.0f, 1.0f, // top top right
+		 -0.5f, -0.5f,  0.5f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, // top top left
 	};
 
 	// index
@@ -168,6 +171,7 @@ int main()
 
 	// VAO
 	VertexArray vao;
+	VertexArray lightVAO;
 	// VBO
 	VertexBuffer vbo(vertices, sizeof(vertices));
 	// EBO
@@ -177,9 +181,11 @@ int main()
 	Texture shrekSmithTexture("assets/textures/shrek_smith.jpg", GL_RGB);
 
 	// Attribute binding
-	vao.AddAttibute(0, 3, GL_FALSE, 8, 0);
-	vao.AddAttibute(1, 3, GL_FALSE, 8, 3);
-	vao.AddAttibute(2, 3, GL_FALSE, 8, 6);
+	vao.AddAttibute(0, 3, GL_FALSE, 8, 0); // position
+	vao.AddAttibute(1, 3, GL_FALSE, 8, 3); // normals
+	vao.AddAttibute(2, 3, GL_FALSE, 8, 6); // texture
+
+	lightVAO.AddAttibute(0, 3, GL_FALSE, 8, 0);
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -194,16 +200,34 @@ int main()
 		projection = glm::perspective(glm::radians(45.0f), (float)SRC_WIDTH / (float)SRC_HEIGHT, 0.1f, 100.0f);;
 		view = glm::lookAt(cameraPosition, cameraPosition + cameraFront, cameraUp);
 		
-		// Draw the triangle
+		// enable uniforms
+		lightShader.Bind();
+		lightShader.setUniformMat4f("model", model);
+		lightShader.setUniformMat4f("projection", projection);
+		lightShader.setUniformMat4f("view", view);
+
 		shader.Bind();
+		shader.setUniform3f("lightPos", lightPosition);
+		shader.setUniform3f("viewPos", cameraPosition);
 		shader.setUniformMat4f("projection", projection);
 		shader.setUniformMat4f("view", view);
 		shader.setUniformMat4f("model", model);
 
-		vao.Bind();
+		lightVAO.Bind();
 		ebo.Bind();
-		for (unsigned int i = 0; i < nCubes; i++) {
 
+		lightShader.Bind();
+		lightPosition.x = 2 * sin(0.5 * glfwGetTime());
+		lightPosition.y = sin(glfwGetTime());
+		lightPosition.z = 2 * cos(0.5 * glfwGetTime());
+		updateModel(glm::translate(glm::mat4(1.0f), lightPosition));
+		lightShader.setUniformMat4f("model", model);
+		GLCall(glDrawElements(GL_TRIANGLES, ebo.getCount(), GL_UNSIGNED_INT, 0));
+		
+		for (unsigned int i = 0; i < nCubes; i++) {
+			shader.Bind();
+			vao.Bind();
+			ebo.Bind();
 			updateModel(glm::translate(glm::mat4(1.0f), cubePositions[i]));
 			shader.setUniformMat4f("model", model);
 			GLCall(glDrawElements(GL_TRIANGLES, ebo.getCount(), GL_UNSIGNED_INT, 0));
