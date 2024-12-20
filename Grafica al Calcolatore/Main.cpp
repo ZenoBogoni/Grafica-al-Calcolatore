@@ -96,7 +96,7 @@ int main()
 
 
 	// Shaders
-	Shader shader = Shader("res/shaders/triangle.shader");
+	Shader shader = Shader("res/shaders/box.shader");
 	Shader lightShader = Shader("res/shaders/light.shader");
 
 
@@ -177,13 +177,14 @@ int main()
 	// EBO
 	IndexBuffer ebo(indices, sizeof(indices) / sizeof(unsigned int));
 	// Texture
-	Texture grassBlockTexture("assets/textures/minecraft_grass.jpg", GL_RGB);
-	Texture shrekSmithTexture("assets/textures/shrek_smith.jpg", GL_RGB);
+	Texture container("assets/textures/container2.png", GL_RGBA);
+	Texture shrekSmith("assets/textures/shrek_smith.jpg", GL_RGB);
+	Texture containerSpecMap("assets/textures/container2_specular.png", GL_RGBA);
 
 	// Attribute binding
 	vao.AddAttibute(0, 3, GL_FALSE, 8, 0); // position
 	vao.AddAttibute(1, 3, GL_FALSE, 8, 3); // normals
-	vao.AddAttibute(2, 3, GL_FALSE, 8, 6); // texture
+	vao.AddAttibute(2, 2, GL_FALSE, 8, 6); // texture
 
 	lightVAO.AddAttibute(0, 3, GL_FALSE, 8, 0);
 
@@ -207,12 +208,21 @@ int main()
 		lightShader.setUniformMat4f("view", view);
 
 		shader.Bind();
-		shader.setUniform3f("lightPos", lightPosition);
 		shader.setUniform3f("viewPos", cameraPosition);
 		shader.setUniformMat4f("projection", projection);
 		shader.setUniformMat4f("view", view);
 		shader.setUniformMat4f("model", model);
-
+		shader.setUniform1i("material.diffuse", 0);
+		shader.setUniform3f("material.specular", 0.5f, 0.5f, 0.5f);
+		shader.setUniform1f("material.shininess", 16.0f);
+		shader.setUniform3f("light.position", lightPosition);
+		shader.setUniform3f("light.ambient", 0.2f, 0.2f, 0.2f);
+		shader.setUniform3f("light.diffuse", 0.7f, 0.7f, 0.7f);
+		shader.setUniform3f("light.specular", 1.0f, 1.0f, 1.0f);
+		container.Bind(0);
+		shader.setUniform1i("containerTex", 0);
+		containerSpecMap.Bind(1);
+		shader.setUniform1i("containerSpec", 1);
 		lightVAO.Bind();
 		ebo.Bind();
 
@@ -261,23 +271,6 @@ void processInput(GLFWwindow* window)
 		yAngle = yAngle == 0.0f ? yAngle = 360.0f * deltaTime : yAngle -= 120.0f * deltaTime;
 		updateModel();
 	}
-	
-	/*if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-		cameraPosition.z = -0.03f;
-		updateView();
-	}
-	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-		cameraPosition.z = 0.03f;
-		updateView();
-	}
-	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-		cameraPosition.x = -0.03f;
-		updateView();
-	}
-	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
-		cameraPosition.x = 0.03f;
-		updateView();
-	}*/
 	const float cameraSpeed = 2.5f * deltaTime; // adjust accordingly
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 		cameraPosition += cameraSpeed * cameraFront;
