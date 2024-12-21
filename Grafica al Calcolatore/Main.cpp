@@ -34,6 +34,7 @@ glm::mat4 model;
 float xAngle = 0.0f;
 float yAngle = 0.0f;
 float scaleFactor = 1.0f;
+float speed = 2.5f;
 
 glm::mat4 view;
 glm::vec3 cameraPosition(0.0f, 0.0, 3.0f);
@@ -208,28 +209,27 @@ int main()
 		lightShader.setUniformMat4f("view", view);
 
 		shader.Bind();
+		container.Bind(0);
+		containerSpecMap.Bind(1);
 		shader.setUniform3f("viewPos", cameraPosition);
 		shader.setUniformMat4f("projection", projection);
 		shader.setUniformMat4f("view", view);
 		shader.setUniformMat4f("model", model);
 		shader.setUniform1i("material.diffuse", 0);
-		shader.setUniform3f("material.specular", 0.5f, 0.5f, 0.5f);
-		shader.setUniform1f("material.shininess", 16.0f);
-		shader.setUniform3f("light.position", lightPosition);
-		shader.setUniform3f("light.ambient", 0.2f, 0.2f, 0.2f);
-		shader.setUniform3f("light.diffuse", 0.7f, 0.7f, 0.7f);
-		shader.setUniform3f("light.specular", 1.0f, 1.0f, 1.0f);
-		container.Bind(0);
-		shader.setUniform1i("containerTex", 0);
-		containerSpecMap.Bind(1);
-		shader.setUniform1i("containerSpec", 1);
+		shader.setUniform1i("material.specular", 1);
+		shader.setUniform1f("material.shininess", 32.0f);
+		shader.setUniform3f("pointLight.position", lightPosition);
+		shader.setUniform3f("pointLight.ambient", 0.2f, 0.2f, 0.2f);
+		shader.setUniform3f("pointLight.diffuse", 0.7f, 0.7f, 0.7f);
+		shader.setUniform3f("pointLight.specular", 1.0f, 1.0f, 1.0f);
+		shader.setUniform1f("pointLight.constant", 1.0f);
+		shader.setUniform1f("pointLight.linear", 0.22f);
+		shader.setUniform1f("pointLight.quadratric", 0.02f);
 		lightVAO.Bind();
 		ebo.Bind();
 
 		lightShader.Bind();
-		lightPosition.x = 2 * sin(0.5 * glfwGetTime());
-		lightPosition.y = sin(glfwGetTime());
-		lightPosition.z = 2 * cos(0.5 * glfwGetTime());
+		
 		updateModel(glm::translate(glm::mat4(1.0f), lightPosition));
 		lightShader.setUniformMat4f("model", model);
 		GLCall(glDrawElements(GL_TRIANGLES, ebo.getCount(), GL_UNSIGNED_INT, 0));
@@ -271,7 +271,8 @@ void processInput(GLFWwindow* window)
 		yAngle = yAngle == 0.0f ? yAngle = 360.0f * deltaTime : yAngle -= 120.0f * deltaTime;
 		updateModel();
 	}
-	const float cameraSpeed = 2.5f * deltaTime; // adjust accordingly
+	
+	const float cameraSpeed = speed * deltaTime; // adjust accordingly
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 		cameraPosition += cameraSpeed * cameraFront;
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -280,7 +281,10 @@ void processInput(GLFWwindow* window)
 		cameraPosition -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		cameraPosition += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-
+	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+		speed = 5.0f;
+	else
+		speed = 2.5f;
 
 }
 
